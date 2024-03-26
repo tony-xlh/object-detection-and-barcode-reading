@@ -7,17 +7,9 @@ CLASSES = yaml_load(check_yaml("coco128.yaml"))["names"]
 model = cv2.dnn.readNetFromONNX("yolov8n.onnx")
 
 # Read the input image
-original_image = cv2.imread("scaled.jpg")
-[height, width, _] = original_image.shape
-
-# Prepare a square image for inference
-length = max((height, width))
-image = np.zeros((length, length, 3), np.uint8)
-image[0:height, 0:width] = original_image
+image = cv2.imread("IMG20240326163255.jpg")
 
 cv2.imwrite("out.jpg",image)
-# Calculate scale factor
-scale = length / 640
 
 # Preprocess the image and prepare blob for model
 blob = cv2.dnn.blobFromImage(image, scalefactor=1 / 255, size=(640, 640), swapRB=True)
@@ -63,7 +55,7 @@ for i in range(len(result_boxes)):
         "class_name": CLASSES[class_ids[index]],
         "confidence": scores[index],
         "box": box,
-        "scale": scale,
+        "scale": 1.0,
     }
     detections.append(detection)
     
