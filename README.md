@@ -6,6 +6,11 @@ It first detects objects using Yolo v8 and then read barcodes from the detected 
 
 The objects will be drawn on the image. If the object does not contain a barcode, it will be highlighted.
 
+![image](https://github.com/tony-xlh/object-detection-and-barcode-reading/assets/112376616/9a34411a-53a3-4a03-af74-8f34a528f264)
+
+
+Files explaination:
+
 * `predict.py`: use YOLOv8 to detect objects and read barcodes.
 * `opencv.py`: a version using OpenCV's DNN for inference.
-* `convert.py`: convert the YOLO model into ONNX.
+* `convertToONNX.py`: convert the YOLO model into ONNX.
