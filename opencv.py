@@ -32,10 +32,12 @@ def detect(image):
     boxes = []
     scores = []
     class_ids = []
-
+    print("rows")
+    print(rows)
     # Iterate through output to collect bounding boxes, confidence scores, and class IDs
     for i in range(rows):
         classes_scores = outputs[0][i][4:]
+        
         (minScore, maxScore, minClassLoc, (x, maxClassIndex)) = cv2.minMaxLoc(classes_scores)
         if maxScore >= 0.25:
             box = [
