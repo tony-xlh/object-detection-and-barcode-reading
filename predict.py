@@ -14,20 +14,20 @@ reader.update_runtime_settings(settings)
 
 def detect(img):
     results = model.predict(source=img)  # save predictions as labels
-    boxes = []
+    detections = []
     for result in results:
         for box in result.boxes:
             xyxy = box.xyxy[0]
-            box_to_append = {}
-            box_to_append["x"] = int(xyxy[0])
-            box_to_append["y"] = int(xyxy[1])
-            box_to_append["w"] = int(xyxy[2]) - int(xyxy[0])
-            box_to_append["h"] = int(xyxy[3]) - int(xyxy[1])
-            box_to_append["conf"] = float(box.conf)
+            detection = {}
+            detection["x"] = int(xyxy[0])
+            detection["y"] = int(xyxy[1])
+            detection["w"] = int(xyxy[2]) - int(xyxy[0])
+            detection["h"] = int(xyxy[3]) - int(xyxy[1])
+            detection["confidence"] = float(box.conf)
             class_index = int(box.cls[0])
-            box_to_append["class"] = model.names[class_index]
-            boxes.append(box_to_append)
-    return boxes
+            detection["class"] = model.names[class_index]
+            detections.append(detection)
+    return detections
 
 def draw_results(img,boxes):
     target_width = 640
