@@ -46,41 +46,8 @@ def draw_rects(rects):
     for (x,y,w,h) in rects:
         min_x, max_x = min(x, min_x), max(x+w, max_x)
         min_y, max_y = min(y, min_y), max(y+h, max_y)
-        cv2.rectangle(image, (x,y), (x+w,y+h), (255, 0, 0), 5)
+        cv2.rectangle(image, (x,y), (x+w,y+h), (255, 0, 0), 5)     
 
-def merged_without_inner_rects(rects1,rects2):
-    new_rects = []
-    for rect1 in rects1:
-        add = True
-        for rect2 in rects2:
-            if is_overlap(rect1,rect2):
-                if is_larger(rect1,rect2) == False:
-                    add = False
-                    #print("is smaller. not add this rect")
-                    #print(rect1)
-                    break
-        if add == True:
-            new_rects.append(rect1)
-    new_rects = new_rects + rects2
-    return new_rects
-    
-                
-def is_larger(rect1, rect2):
-    x1, y1, w1, h1 = rect1
-    x2, y2, w2, h2 = rect2
-    if w1*h1 > w2*h2:
-        return True
-    else:
-        return False
-        
-
-def is_overlap(rect1, rect2):
-    x1, y1, w1, h1 = rect1
-    x2, y2, w2, h2 = rect2
-    if x1 + w1 < x2 or x2 + w2 < x1 or y1 + h1 < y2 or y2 + h2 < y1:
-        return False
-    else:
-        return True
         
 key = "red"
 lower = colors_hsv[key]["lower"]
@@ -90,11 +57,8 @@ kernel = np.ones((3, 3), np.uint8)
 #thresh = cv2.dilate(thresh, kernel)
 thresh = cv2.erode(thresh, kernel)
 rects1 = get_bounding_rects(thresh)
-print("Found " + str(len(rects1)) + " rectangle(s)")
 rects2 = get_bounding_rects(mask)
-print("Found " + str(len(rects2)) + " rectangle(s)")
-rects = merged_without_inner_rects(rects1,rects2)
-#rects = rects1 + rects2
+rects = rects1 + rects2
 draw_rects(rects)
 print("Found " + str(len(rects)) + " rectangle(s)")
 cv2.imwrite("mask.jpg",mask)
