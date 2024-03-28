@@ -1,12 +1,13 @@
 import cv2
 import numpy as np
 image = cv2.imread("IMG20240328155110.jpg") # Read image
-rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+ret,thresh = cv2.threshold(gray,150,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
 
 colors_hsv = {
   "red": {
-    "lower": np.array([156,180,100]),
+    "lower": np.array([156,150,100]),
     "upper": np.array([180,255,255]) 
   },
   "yellow": {
@@ -16,30 +17,47 @@ colors_hsv = {
   "pink": {
     "lower": np.array([156,80,100]),
     "upper": np.array([180,140,255]) 
+  },
+  "green": {
+    "lower": np.array([156,80,100]),
+    "upper": np.array([200,140,255]) 
+  },
+  "blue": {
+    "lower": np.array([100,80,100]),
+    "upper": np.array([120,140,255]) 
   }
 }
 
-colors_rgb = {
-  "red": {
-    "lower": np.array([150,5,5]),
-    "upper": np.array([220,80,80]) 
-  },
-  "yellow": {
-    "lower": np.array([150,150,50]),
-    "upper": np.array([230,230,80]) 
-  },
-  "pink": {
-    "lower": np.array([156,180,100]),
-    "upper": np.array([180,255,255]) 
-  }
-}
-for key in colors_hsv.keys():
-    lower = colors_hsv[key]["lower"]
-    upper = colors_hsv[key]["upper"]
-    mask = cv2.inRange(hsv, lower, upper)
-    cv2.namedWindow(key, cv2.WINDOW_NORMAL) 
-    cv2.imshow(key,mask)
+def get_bounding_rects(img):
+    contours, hierarchy = cv2.findContours(img,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+    rects = []
+    for cnt in contours:
+        rect = cv2.boundingRect(cnt)
+        rects.append(rect)
+    return rects
+    
+def draw_rects(rects):
+    height, width, _ = image.shape
+    min_x, min_y = width, height
+    max_x = max_y = 0
+    for (x,y,w,h) in rects:
+        min_x, max_x = min(x, min_x), max(x+w, max_x)
+        min_y, max_y = min(y, min_y), max(y+h, max_y)
+        if w > 80 and h > 80:
+            cv2.rectangle(image, (x,y), (x+w,y+h), (255, 0, 0), 2)
 
 
-cv2.waitKey(0) # 0==wait forever
-cv2.destroyAllWindows() 
+key = "red"
+lower = colors_hsv[key]["lower"]
+upper = colors_hsv[key]["upper"]
+mask = cv2.inRange(hsv, lower, upper)
+kernel = np.ones((3, 3), np.uint8)
+#thresh = cv2.dilate(thresh, kernel)
+thresh = cv2.erode(thresh, kernel)
+rects = get_bounding_rects(thresh)
+rects = rects + get_bounding_rects(mask)
+draw_rects(rects)
+cv2.imwrite("mask.jpg",mask)
+cv2.imwrite("thresh.jpg",thresh)
+cv2.imwrite("image.jpg",image)
+
