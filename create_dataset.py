@@ -21,22 +21,27 @@ def create():
             print("val")
             target_img_folder = "dataset/images/val/"
             target_label_folder = "dataset/labels/val/"
-            shutil.copy(path, target_img_folder+filename)
+            write_image(img,filename,target_img_folder)
             write_label(rects,img,filename,target_label_folder)
         else:
             print("train")
             target_img_folder = "dataset/images/train/"
             target_label_folder = "dataset/labels/train/"
-            shutil.copy(path, target_img_folder+filename)
+            write_image(img,filename,target_img_folder)
             write_label(rects,img,filename,target_label_folder)
+
+def write_image(img,image_name,target_folder):
+    resized = cv2.resize(img, (640, 640))
+    cv2.imwrite(target_folder+image_name,resized)
+    
 
 def write_label(rects,img,image_name,target_folder):
     file_name = os.path.splitext(image_name)[0]
     f = open(target_folder+file_name+".txt","w",encoding="utf8")
     height, width, _ = img.shape
     for (x,y,w,h) in rects:
-        normalized_x = x / width
-        normalized_y = y / height
+        normalized_x = (x + w/2) / width #center y
+        normalized_y = (y + h/2) / height #center x
         normalized_w = w / width
         normalized_h = h / height
         line = f'0 {normalized_x} {normalized_y} {normalized_w} {normalized_h}\n'
