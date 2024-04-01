@@ -59,7 +59,7 @@ def draw_results(img,boxes):
 
 
 if __name__ == "__main__":
-    img = cv2.imread("IMG20240326163255.jpg")
+    img = cv2.imread("./samples/IMG20240326163255.jpg")
     boxes = detect(img)
     draw_results(img,boxes)
 
