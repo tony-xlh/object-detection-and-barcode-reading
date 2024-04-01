@@ -9,3 +9,5 @@ The objects will be drawn on the image. If the object does not contain a barcode
 * `predict.py`: use YOLOv8 to detect objects and read barcodes.
 * `opencv.py`: a version using OpenCV's DNN for inference.
 * `convert.py`: convert the YOLO model into ONNX.
+* `inrange.py`: use OpenCV's `inrange` for segmentation based on colors.
+* `create_dataset.py`: create dataset in YOLO's format.
