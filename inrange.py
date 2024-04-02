@@ -44,20 +44,24 @@ def draw_rects(rects,original_image):
         min_y, max_y = min(y, min_y), max(y+h, max_y)
         cv2.rectangle(original_image, (x,y), (x+w,y+h), (255, 0, 0), 5)
 
-def detect(image):
+def detect(image,addResultsOfthreshold=False):
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     rects = []
     for key in colors_hsv:
         lower = colors_hsv[key]["lower"]
         upper = colors_hsv[key]["upper"]
         mask = cv2.inRange(hsv, lower, upper)
         kernel = np.ones((3, 3), np.uint8)
-        #thresh = cv2.dilate(thresh, kernel)
         mask = cv2.erode(mask, kernel)
         cv2.imwrite("mask-"+key+".jpg",mask)
         rects_of_one_color = get_bounding_rects(mask)
         rects = rects + rects_of_one_color
+    if addResultsOfthreshold == True:
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        ret,thresh = cv2.threshold(gray,150,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+        kernel = np.ones((3, 3), np.uint8)
+        thresh = cv2.erode(thresh, kernel)
+        rects = rects + get_bounding_rects(thresh)
     rects = filter_out_small_areas(rects)
     return rects
     

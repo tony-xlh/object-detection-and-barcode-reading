@@ -15,7 +15,7 @@ def create():
         file_numbers = file_numbers + 1
         path = folder+"/"+filename
         img = cv2.imread(path)
-        rects = detect(img)
+        rects = detect(img,addResultsOfthreshold=True)
         print(len(rects))
         if file_numbers > num_train:
             print("val")
