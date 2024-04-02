@@ -14,6 +14,7 @@ Files explaination:
 * `predict.py`: use YOLOv8 to detect objects and read barcodes.
 * `opencv.py`: a version using OpenCV's DNN for inference.
 * `convertToONNX.py`: convert the YOLO model into ONNX.
+* `findContours.py`: detect contours and read barcodes.
 * `inrange.py`: use OpenCV's `inrange` for segmentation based on colors.
-* `create_dataset.py`: create dataset in YOLO's format.
+* `create_dataset.py`: create dataset in YOLO's format using segmentation based on color to generate the annotations.
 
