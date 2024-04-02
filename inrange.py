@@ -15,12 +15,12 @@ colors_hsv = {
     "upper": np.array([180,140,255]) 
   },
   "green": {
-    "lower": np.array([156,80,100]),
-    "upper": np.array([200,140,255]) 
+    "lower": np.array([88,50,100]),
+    "upper": np.array([99,80,255]) 
   },
   "blue": {
-    "lower": np.array([100,80,100]),
-    "upper": np.array([120,140,255]) 
+    "lower": np.array([78,120,100]),
+    "upper": np.array([99,255,255]) 
   }
 }
 
@@ -44,24 +44,70 @@ def draw_rects(rects,original_image):
         min_y, max_y = min(y, min_y), max(y+h, max_y)
         cv2.rectangle(original_image, (x,y), (x+w,y+h), (255, 0, 0), 5)
 
-def detect(image):
+def detect(image,addResultsOfthreshold=False):
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    ret,thresh = cv2.threshold(gray,150,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
-    key = "red"
-    lower = colors_hsv[key]["lower"]
-    upper = colors_hsv[key]["upper"]
-    mask = cv2.inRange(hsv, lower, upper)
-    kernel = np.ones((3, 3), np.uint8)
-    #thresh = cv2.dilate(thresh, kernel)
-    thresh = cv2.erode(thresh, kernel)
-    rects1 = get_bounding_rects(thresh)
-    rects2 = get_bounding_rects(mask)
-    rects = rects1 + rects2
+    rects = []
+    for key in colors_hsv:
+        lower = colors_hsv[key]["lower"]
+        upper = colors_hsv[key]["upper"]
+        mask = cv2.inRange(hsv, lower, upper)
+        kernel = np.ones((3, 3), np.uint8)
+        mask = cv2.erode(mask, kernel)
+        cv2.imwrite("mask-"+key+".jpg",mask)
+        rects_of_one_color = get_bounding_rects(mask)
+        rects = rects + rects_of_one_color
+    if addResultsOfthreshold == True:
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        ret,thresh = cv2.threshold(gray,150,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+        kernel = np.ones((3, 3), np.uint8)
+        thresh = cv2.erode(thresh, kernel)
+        rects = rects + get_bounding_rects(thresh)
+    rects = filter_out_small_areas(rects)
     return rects
     
+    
+def filter_out_small_areas(rects):
+    new_rects = []
+    for i in range(0,len(rects)):
+        rect1 = rects[i]
+        add = True
+        for j in range(0,len(rects)):
+            if j == i:
+                continue
+            rect2 = rects[j]
+            area = get_overlap_area(rect1,rect2)
+            print(area)
+            if area>0:
+                area1 = rect1[2]*rect1[3]
+                area2 = rect2[2]*rect2[3]
+                min_area = min(area1,area2)
+                percent = area/min_area
+                print(percent)
+                if  percent>0.8 and area1<area2:
+                    print("do not add")
+                    add = False
+                    break
+        if add == True:
+            new_rects.append(rect1)
+    return new_rects
+    
+def get_overlap_area(rect1, rect2):
+    x1,y1,w1,h1 = rect1
+    x2,y2,w2,h2 = rect2
+    right1 = x1+w1
+    right2 = x2+w2
+    bottom1 = y1+h1
+    bottom2 = y2+h2
+    
+    x_overlap = max(0, min(right1, right2) - max(x1,x2))
+
+    y_overlap = max(0, min(bottom1, bottom2) - max(y1,y2))
+
+    overlap_area = x_overlap * y_overlap
+    return overlap_area
+    
 if __name__ == "__main__":
-    image = cv2.imread("IMG20240328155110.jpg")
+    image = cv2.imread("./samples/IMG20240401165353.jpg")
     rects = detect(image)
     draw_rects(rects,image)
     print("Found " + str(len(rects)) + " rectangle(s)")
