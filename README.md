@@ -18,3 +18,6 @@ Files explanation:
 * `inrange.py`: use OpenCV's `inrange` for segmentation based on colors.
 * `create_dataset.py`: create a dataset in YOLO's format using segmentation based on color to generate the annotations.
 
+## Blog
+
+[Object Detection and Barcode Reading](https://www.dynamsoft.com/codepool/object-detection-and-barcode-reading.html)
